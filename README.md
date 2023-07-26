@@ -6,6 +6,6 @@ We will be using a dataset from a US-based organization called Yelp, which provi
 
 You will be asked a series of questions regarding the data to help you profile and better understand the data in the first part of the assignment. Once you have answered each question, you will come up with your own question for analysis and will prepare a dataset for the analysis you choose to do in the second part of the assignment.
 
-#Yelp Dataset ER diagram:
+# Yelp Dataset ER diagram:
 
 ![image](https://github.com/Ashwin-Anandhapadman/Coursera-project/assets/139191835/3e5f4740-4f0f-4b20-b7d8-3b44358c4b64)
