@@ -1,0 +1,112 @@
+# Data Scientist Role Play: Profiling and Analyzing the Yelp Dataset Coursera Worksheet
+
+This is a 2-part assignment. In the second part of the assignment, you are asked to come up with your own inferences and analysis of the data for a particular research question you want to answer. You will be required to prepare the dataset for the analysis you choose to do. As with the first part, you will be graded, in part, on how easy your code is to read, so use proper formatting and comments to illustrate and communicate your intent as required.
+
+Part 2: Inferences and Analysis
+
+1. Pick one city and category of your choice and group the businesses in that city or category by their overall star rating. Compare the businesses with 2-3 stars to the businesses with 4-5 stars and answer the following questions. Include your code.
+	
+i. Do the two groups you chose to analyze have a different distribution of hours?
+
+There is no big difference in distribution of hours for the 2 groups
+
+ii. Do the two groups you chose to analyze have a different number of reviews?
+  
+Yes. Thetwo groups had different number of reviews.
+ +-----------+----------+-----------------+---------------+---------------+
+| STARS     | id_count | open_days_total | open_days_avg | total_reviews |
++-----------+----------+-----------------+---------------+---------------+
+| 2-3 stars |        2 |              13 |           6.5 |           108 |
+| 4-5 stars |        2 |              12 |           6.0 |           244 |
++-----------+----------+-----------------+---------------+---------------+
+         
+iii. Are you able to infer anything from the location data provided between these two groups? Explain.
+
+RESULT FOR iii:
++-----------+--------------+-----------------------------+-------------+
+| STARS     | neighborhood | address                     | postal_code |
++-----------+--------------+-----------------------------+-------------+
+| 2-3 stars | Southeast    | 3421 E Tropicana Ave, Ste I | 89121       |
+| 2-3 stars | Eastside     | 3808 E Tropicana Ave        | 89121       |
+| 4-5 stars |              | 1000 Scenic Loop Dr         | 89161       |
+| 4-5 stars |              | 3555 W Reno Ave, Ste F      | 89118       |
++-----------+--------------+-----------------------------+-------------+
+As we can clearly see, the two shops with lowest rating among the rest are located in Tropicanca Avenue. So, the place might not be be very good for hosting shops as people might not prefer to come to this place due to various reasons like unavailability of transportation etc. Thus, the reviews receieved by these 2 shops are also less when compared to their better counterparts
+SQL code used for analysis:
+
+CODE FOR i and ii:
+
+SELECT CASE WHEN stars >= 4.0 THEN '4-5 stars'
+            WHEN stars >= 2.0 THEN '2-3 stars'
+            ELSE 'below 2' END AS 'STARS',               
+       COUNT(DISTINCT business.id) AS id_count,            
+       COUNT(hours) AS open_days_total,   -- number of openning days        
+       COUNT(hours)*1.0 / COUNT(DISTINCT business.id)  AS open_days_avg,
+ Sum(review_count) AS total_reviews      
+FROM ((business INNER JOIN hours ON business.id = hours.business_id)
+     INNER JOIN category ON business.id = category.business_id)
+WHERE city = 'Las Vegas' AND category.category ='Shopping'
+GROUP BY STARS
+
+CODE FOR iii:
+SELECT CASE WHEN stars >= 4.0 THEN '4-5 stars'
+            WHEN stars >= 2.0 THEN '2-3 stars'
+            ELSE 'below 2' END AS 'STARS',
+       business.neighborhood,
+       business.address,
+       business.postal_code
+FROM business INNER JOIN category ON business.id = category.business_id
+WHERE city = 'Las Vegas' AND category.category ='Shopping'
+ORDER BY STARS
+
+		
+		
+2. Group business based on the ones that are open and the ones that are closed. What differences can you find between the ones that are still open and the ones that are closed? List at least two differences and the SQL code you used to arrive at your answer.
+		
+i. Difference 1: There are more number of open businesses than closed businesses
+         
+         
+ii. Difference 2: The average star rating for open businesses are higher than the closed ones
+         
+         
+         
+SQL code used for analysis:
+
+SELECT is_open, COUNT(DISTINCT id) AS total_businesses, SUM(review_count) AS total_reviews, AVG(stars) AS avg_stars
+FROM business 
+GROUP BY is_open;
+	
+3. For this last part of your analysis, you are going to choose the type of analysis you want to conduct on the Yelp dataset and are going to prepare the data for analysis.
+
+Ideas for analysis include: Parsing out keywords and business attributes for sentiment analysis, clustering businesses to find commonalities or anomalies between them, predicting the overall star rating for a business, predicting the number of fans a user will have, and so on. These are just a few examples to get you started, so feel free to be creative and come up with your own problem you want to solve. Provide answers, in-line, to all of the following:
+	
+i. Indicate the type of analysis you chose to do: Finding the best restaurants across different cities
+         
+ii. Write 1-2 brief paragraphs on the type of data you will need for your analysis and why you chose that data: 
+
+I have collected the name of different restaurants across different cities mentioned in the database. Finally, I shortlisted the best restaurants in the database by giving a conditional rating of more than 4 stars. 
+Thus, I ended up getting 7 restaurants with more than 4 star rating and interestingly most of them are located in different cities.
+                           
+                  
+iii. Output of your finished dataset:
+
++-------------------------------+-------------+-----------+-------+
+| name                          | category    | city      | stars |
++-------------------------------+-------------+-----------+-------+
+| Big City Grill                | Restaurants | Charlotte |   5.0 |
+| Green Corner Restaurant       | Restaurants | Mesa      |   5.0 |
+| Sushi Osaka                   | Restaurants | Toronto   |   4.5 |
+| Charlie D's Catfish & Chicken | Restaurants | Phoenix   |   4.5 |
+| Slyman's Restaurant           | Restaurants | Cleveland |   4.5 |
+| Cabin Fever                   | Restaurants | Toronto   |   4.5 |
+| Hibachi-San                   | Restaurants | Las Vegas |   4.5 |
++-------------------------------+-------------+-----------+-------+
+         
+         
+iv. Provide the SQL code you used to create your final dataset:
+
+SELECT distinct business.name,category.category, business.city,business.stars 
+From business JOIN category
+ON business.id= category.business_id
+WHERE category.category= 'Restaurants'AND stars > 4
+Order By stars desc
